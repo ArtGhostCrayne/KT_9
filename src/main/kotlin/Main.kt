@@ -12,8 +12,12 @@ data class Chat(var messages: MutableList<Message> = mutableListOf())
 object Chats {
     var chats: MutableMap<Pair<Int,Int>,Chat> = mutableMapOf()
 
-    fun addMessage(receiverId: Int, senderId: Int,  text: String) {
-        chats.getOrPut(receiverId toSorted senderId){Chat()}.messages.add(Message(sender = senderId,text = text))
+    fun clear(){
+        chats.clear()
+    }
+
+    fun addMessage(receiverId: Int, senderId: Int,  text: String): Boolean {
+       return chats.getOrPut(receiverId toSorted senderId){Chat()}.messages.add(Message(sender = senderId,text = text))
     }
 
     fun readChat(receiverId: Int, senderId: Int, count: Int): List<Message>{
