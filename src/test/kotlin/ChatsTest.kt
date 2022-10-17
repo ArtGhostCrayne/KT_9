@@ -22,7 +22,8 @@ class ChatsTest {
         service.addMessage(1, 999, "Hi")
         service.addMessage(2, 999, "Hi")
         val list = service.readChat(999,1,30)
-        assertTrue(list.size == 2)
+        assertEquals(2, list.size)
+
     }
 
     @org.junit.Test

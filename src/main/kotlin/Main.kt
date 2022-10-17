@@ -10,33 +10,38 @@ data class Message(
 data class Chat(var messages: MutableList<Message> = mutableListOf())
 
 object Chats {
-    var chats: MutableMap<Pair<Int,Int>,Chat> = mutableMapOf()
+    var chats: MutableMap<Pair<Int, Int>, Chat> = mutableMapOf()
 
-    fun clear(){
+    fun clear() {
         chats.clear()
     }
 
-    fun addMessage(receiverId: Int, senderId: Int,  text: String): Boolean {
-       return chats.getOrPut(receiverId toSorted senderId){Chat()}.messages.add(Message(sender = senderId,text = text))
+    fun addMessage(receiverId: Int, senderId: Int, text: String): Boolean {
+        return chats.getOrPut(receiverId toSorted senderId) { Chat() }.messages.add(
+            Message(
+                sender = senderId,
+                text = text
+            )
+        )
     }
 
-    fun readChat(receiverId: Int, senderId: Int, count: Int): List<Message>{
-        val chat = chats[receiverId toSorted senderId]
-        return chat?.messages?.takeLast(count).orEmpty().onEach { it.read = true }
+    fun readChat(receiverId: Int, senderId: Int, count: Int): List<Message> {
+        return chats[receiverId toSorted senderId]?.messages?.asSequence()?.take(count).orEmpty().onEach { it.read }
+            .toList()
     }
 
-    fun delChat(receiverId: Int, senderId: Int){
+    fun delChat(receiverId: Int, senderId: Int) {
         chats[receiverId toSorted senderId]?.messages?.clear()
         chats.remove(receiverId toSorted senderId)
     }
 
-    fun delMessage(receiverId: Int, senderId: Int, index: Int){
+    fun delMessage(receiverId: Int, senderId: Int, index: Int) {
         chats[receiverId toSorted senderId]?.messages?.removeAt(index)
         if (chats[receiverId toSorted senderId]?.messages?.size == 0) chats.remove(receiverId toSorted senderId)
     }
 
     fun getUnreadChatsCount(): Int {
-        return chats.values.count{it.messages.filter { !it.read }.isNotEmpty()}
+        return chats.values.count { it.messages.filter { !it.read }.isNotEmpty() }
     }
 
     fun getChats() {
@@ -47,7 +52,8 @@ object Chats {
 
 }
 
-private infix fun Int.toSorted(senderId: Int): Pair<Int, Int> = if (this<senderId) Pair(senderId,this) else Pair(this,senderId)
+private infix fun Int.toSorted(senderId: Int): Pair<Int, Int> =
+    if (this < senderId) Pair(senderId, this) else Pair(this, senderId)
 
 fun main(args: Array<String>) {
 
@@ -58,17 +64,8 @@ fun main(args: Array<String>) {
     service.addMessage(999, 1, "How are you")
     service.addMessage(1, 999, "I am fine")
     service.addMessage(999, 1, "Me too")
-    println(service.getUnreadChatsCount())
-    println(service.readChat(999,1,30))
-    println(service.getUnreadChatsCount())
 
-//    service.delChat(999,1)
-    println(service.chats)
-
-//    service.delMessage(999,2,0)
-    println(service.chats)
-
-    service.getChats()
+    println(service.readChat(999, 1, 30))
 
 
 }
